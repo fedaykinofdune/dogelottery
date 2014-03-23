@@ -28,12 +28,16 @@ def get_nums_from_tx(tx, server_secret, ticket_price=1):
         tickets.append(ticket)
     return tickets
 
-def generate_ticket_for_tx(data, server_secret):
+## Generate a list of tickets for every transaction
+def generate_tickets_for_tx(data, server_secret):
     for tx in data:
        res = get_nums_from_tx(tx, server_secret)
-       print "I have " + str(len(res)) + " tickest !"
        tx["tickets"] = res
+       print "Transaction " + tx["tx_hash"] + " has " + str(len(res)) + " tickets !"
 
+
+## Pick the winner. 
+## The winner is the one with the lowest ticket's value.
 def pick_winner(data):
     winning_tx = [];
     lowest_ticket = False
@@ -46,9 +50,8 @@ def pick_winner(data):
             elif t == lowest_ticket:
                 winning_tx.append(tx["tx_hash"])
 
-    print "Winner(s):";
+    print "Transaction(s) who won:"
     print winning_tx
-
 
 def main():
     try:
@@ -60,7 +63,7 @@ def main():
 
     with open("TXS") as f:
         data = json.loads(f.read())
-        generate_ticket_for_tx(data, server_secret)
+        generate_tickets_for_tx(data, server_secret)
         pick_winner(data)
     
 if __name__ == "__main__":
