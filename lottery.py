@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 
+import argparse
+import os
 import json
 import hashlib
 import sys
 from uuid import uuid4
+
+is_debug = False
 
 ## Return a list of long decimal -- thoses are the tickets for this transaction.
 ## A transaction can have so many ticket: amount / ticket_price.
@@ -26,6 +30,8 @@ def get_nums_from_tx(tx, server_secret, ticket_price=1):
         ticket_hash = hashlib.sha256(server_secret + tx["tx_hash"] + '_' + str(n)).hexdigest()
         ticket = int(ticket_hash, base=16)
         tickets.append(ticket)
+        if is_debug:
+            print "    Ticket: " + str(ticket)
     return tickets
 
 ## Generate a list of tickets for every transaction
@@ -50,14 +56,28 @@ def pick_winner(data):
             elif t == lowest_ticket:
                 winning_tx.append(tx["tx_hash"])
 
+    print "Winning ticket: " + str(lowest_ticket)
     print "Transaction(s) who won:"
     print winning_tx
 
 def main():
     try:
-        server_secret = sys.argv[1]
+        global is_debug
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-v', dest='verbose', action='store_true', help="verbose, display all tickets")
+        parser.add_argument('-a', '--address', help="lottery bank address (unused yet because it loads transaction from a file)")
+        parser.add_argument('-s', '--secret', help="the server_secret")
+        args = parser.parse_args()
+
+        if args.verbose == True:
+            is_debug = True
+        if args.secret == None:
+            server_secret = str(uuid4())
+        else:
+            server_secret = args.secret
     except:
-        server_secret = str(uuid4())
+        parser.print_help()
+        return
     print "Server Secret: " + server_secret
     print "Server Secret Hash: " + hashlib.sha256(server_secret).hexdigest()
 
