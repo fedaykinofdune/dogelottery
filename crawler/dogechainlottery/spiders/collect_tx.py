@@ -2,12 +2,12 @@ from scrapy.spider import Spider
 from scrapy.selector import Selector
 from dogechainlottery.items import TxItem
 
-class DmozSpider(Spider):
+class CollectTransaction(Spider):
     name = "collect_tx"
     allowed_domains = ["http://dogechain.info"]
-    start_urls = [
-"http://dogechain.info/address/D6h4G23GZuQs4e7EqgN6NLqwaQxi7ViNQS"
-    ]
+    
+    def __init__(self, address):
+        self.start_urls = ["http://dogechain.info/address/" + address]
 
     def parse(self, response):
         sel = Selector(response)
